@@ -6,8 +6,13 @@
     </nav-bar>
 
     <!-- tabs标题区域 -->
-      <tabs-control :titles="['流行', '新款', '精选']" class="tab-control0" @tabClick="tabClick($event)"
-      ref="tabsControlRef0" v-show="tabscontrolShow" />
+    <tabs-control
+      :titles="['流行', '新款', '精选']"
+      class="tab-control0"
+      @tabClick="tabClick($event)"
+      ref="tabsControlRef0"
+      v-show="tabscontrolShow"
+    />
 
     <!-- 滚动区域 -->
     <scroll
@@ -28,8 +33,12 @@
       <feature-views />
 
       <!-- tabs标题区域 -->
-      <tabs-control :titles="['流行', '新款', '精选']" class="tab-control" @tabClick="tabClick($event)"
-      ref="tabsControlRef" />
+      <tabs-control
+        :titles="['流行', '新款', '精选']"
+        class="tab-control"
+        @tabClick="tabClick($event)"
+        ref="tabsControlRef"
+      />
 
       <!-- 商品展示区 -->
       <good-list :goodList="getGoodsType" />
@@ -55,10 +64,10 @@ import TabsControl from 'components/content/tabs/TabsControl'
 import GoodList from 'components/content/GoodList/GoodList'
 // 引入滚动组件
 import Scroll from 'components/common/scroll/Scroll'
-// 导入回到顶部组件
-import BackTop from 'components/content/backTop/BackTop'
 // 导入发送请求文件
 import { getHomeDataList, getAllGoodsData } from 'network/home.js'
+// 导入混入
+import { mixin, backTop } from 'assets/js/common/minxin'
 
 export default {
   name: 'home',
@@ -69,9 +78,9 @@ export default {
     FeatureViews,
     TabsControl,
     GoodList,
-    Scroll,
-    BackTop
+    Scroll
   },
+  mixins: [mixin, backTop],
   data() {
     return {
       // 请求的首页的数据
@@ -87,9 +96,6 @@ export default {
 
       // 改变展示商品类型数据
       currentType: 'pop',
-
-      // 控制返回顶部组件是否显示
-      isTrue: false,
       // 滑动组件距离顶部的距离
       scrollOffsetTop: 0,
       // 控制获取顶部值一次
@@ -108,25 +114,7 @@ export default {
     this.getAllGoods('new')
     this.getAllGoods('sell')
   },
-  mounted() {
-    // 当图片加载一次就刷新scrollHeight
-    const delayRefresh = this.debounce(this.$refs.scrollRef.refreshScrollHeight, 300)
-    this.$bus.$on('refreshScroll', () => {
-      delayRefresh()
-    })
-  },
   methods: {
-    // 防抖函数
-    debounce(fn, delay) {
-      let timer = null
-      return function (...args) {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => {
-          fn.apply(this, args)
-        }, delay)
-      }
-    },
-
     // 获取数据方法
     // 获取轮播图数据
     async getDataList() {
@@ -172,20 +160,10 @@ export default {
       this.$refs.tabsControlRef0.activeIndex = index
       this.$refs.tabsControlRef.activeIndex = index
     },
-    // 回到顶部方法
-    backTopClick() {
-      // 调用scroll组件的方法
-      this.$refs.scrollRef.scrollTo(0, 0, 500)
-    },
     // 监听滚动的位置
     scrollingListen(position) {
       // console.log(position)
-      if (-position.y > 1000) {
-        this.isTrue = true
-      } else {
-        this.isTrue = false
-      }
-
+      this.isShow(position)
       // 如果下拉位置大于tab的
       if (-position.y >= this.scrollOffsetTop) {
         // 显示tabscontrol0
@@ -220,6 +198,8 @@ export default {
   },
   deactivated() {
     this.saveY = this.$refs.scrollRef.scrollheight()
+    // 销毁全局监听
+    this.$off('refreshScroll', this.refreshImgHeight)
   },
   activated() {
     this.$refs.scrollRef.refreshScrollHeight()

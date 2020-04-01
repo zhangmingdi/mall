@@ -1,6 +1,6 @@
 <template>
-  <div id="goodItem">
-    <img :src="goodItem.show.img" alt="" @load="imgLoaded">
+  <div id="goodItem" @click="toDetail">
+    <img :src="showImg" alt="" @load="imgLoaded">
     <p>{{goodItem.title}}</p>
     <span class="price">{{goodItem.price}}</span>
     <span class="star">{{goodItem.cfav}}</span>
@@ -17,10 +17,19 @@ export default {
       }
     }
   },
+  computed: {
+    showImg() {
+      return this.goodItem.image || this.goodItem.show.img
+    }
+  },
   methods: {
     imgLoaded() {
       // 图片每刷新一次就刷新可卷高度
       this.$bus.$emit('refreshScroll')
+    },
+    // 跳转详情页并传递参数
+    toDetail() {
+      this.$router.push(`/detail/${this.goodItem.iid}`)
     }
   }
 }
