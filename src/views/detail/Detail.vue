@@ -4,9 +4,6 @@
     <detail-nav-bar class="nav-bar" @goTo="scrollTo($event)" />
     <!-- 滚动区域 -->
     <scroll class="wrap-box" ref="scrollRef" @scrolling="scrollingListen($event)" :probeType="3">
-    <ul>
-      <li v-for="item in this.$store.state.goodsCart" :key="item.id">{{item.count}}</li>
-    </ul>
       <!-- 轮播图区域 -->
       <detail-swiper :sweiperImgs="sweiperImgs"></detail-swiper>
 
